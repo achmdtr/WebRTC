@@ -295,8 +295,8 @@ function showResultScreen() {
     // Pasang hasil ke image element
     resultImg1.src = photo1Data;
     resultImg2.src = photo2Data;
-    tagPhoto1.textContent = pose1Text.split(' ')[0] || 'POSE #1';
-    tagPhoto2.textContent = pose2Text.split(' ')[0] || 'POSE #2';
+    tagPhoto1.textContent = pose1Text.split('!')[0].trim() || 'POSE #1';
+    tagPhoto2.textContent = pose2Text.split('!')[0].trim() || 'POSE #2';
 
     // Format tanggal cantik
     const now = new Date();
@@ -347,6 +347,27 @@ function downloadIndividualPhotos() {
 }
 
 // Download Photostrip Estetis (Render ke Canvas 2D secara Proporsional Dinamis)
+// Helper menggambar rounded rectangle dengan fallback
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    if (ctx.roundRect) {
+        ctx.roundRect(x, y, width, height, radius);
+    } else {
+        const r = typeof radius === 'number' ? radius : 10;
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + width - r, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+        ctx.lineTo(x + width, y + height - r);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+        ctx.lineTo(x + r, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+    }
+    ctx.closePath();
+}
+
+// Download Photostrip Estetis (Render ke Canvas 2D 100% Identik dengan Preview Card)
 function downloadPhotoStrip() {
     if (!photo1Data || !photo2Data) return;
 
@@ -363,99 +384,100 @@ function downloadPhotoStrip() {
 }
 
 function renderAndSaveStrip(img1, img2) {
-    const stripWidth = 840;
-    const padding = 40;
-    const photoWidth = stripWidth - (padding * 2);
+    const cardWidth = 640;
+    const cardPadding = 32;
+    const photoWidth = cardWidth - (cardPadding * 2);
 
-    // Hitung tinggi foto secara dinamis berdasarkan aspek rasio asli gambar (mencegah stretching & cropping)
+    // Hitung aspek rasio asli dari foto
     const nativeAspectRatio = (img1.naturalHeight && img1.naturalWidth)
         ? (img1.naturalHeight / img1.naturalWidth)
         : (9 / 16);
     
     const photoHeight = Math.round(photoWidth * nativeAspectRatio);
-    const headerHeight = 130;
-    const footerHeight = 110;
-    const photoGap = 30;
+    const headerHeight = 110;
+    const footerHeight = 85;
+    const photoGap = 24;
+    const cardRadius = 24;
+    const frameRadius = 14;
 
-    const stripHeight = headerHeight + (photoHeight * 2) + photoGap + footerHeight;
+    const cardHeight = headerHeight + (photoHeight * 2) + photoGap + footerHeight;
 
-    stripCanvas.width = stripWidth;
-    stripCanvas.height = stripHeight;
+    // Tambahkan sedikit margin luar agar border bulat dan bayangan strip terlihat sempurna
+    const canvasMargin = 20;
+    const totalCanvasWidth = cardWidth + (canvasMargin * 2);
+    const totalCanvasHeight = cardHeight + (canvasMargin * 2);
+
+    stripCanvas.width = totalCanvasWidth;
+    stripCanvas.height = totalCanvasHeight;
     const ctx = stripCanvas.getContext('2d');
 
-    // 1. Background Strip (Dark Emerald Sand Theme)
-    const bgGradient = ctx.createLinearGradient(0, 0, 0, stripHeight);
+    // 1. Bersihkan background transparan
+    ctx.clearRect(0, 0, totalCanvasWidth, totalCanvasHeight);
+
+    const cardX = canvasMargin;
+    const cardY = canvasMargin;
+
+    // 2. Gambar Kartu Utama Strip dengan Sudut Membulat (Rounded Card)
+    ctx.save();
+    drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, cardRadius);
+    ctx.clip(); // Batasi seluruh isi kartu di dalam area rounded
+
+    // Background Gradient Kartu (Persis CSS .photostrip-card)
+    const bgGradient = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardHeight);
     bgGradient.addColorStop(0, '#052319');
     bgGradient.addColorStop(0.5, '#083325');
     bgGradient.addColorStop(1, '#052319');
     ctx.fillStyle = bgGradient;
-    ctx.fillRect(0, 0, stripWidth, stripHeight);
+    ctx.fillRect(cardX, cardY, cardWidth, cardHeight);
 
-    // 2. Border Luar Emas
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = '#dfb15b';
-    ctx.strokeRect(5, 5, stripWidth - 10, stripHeight - 10);
-
-    // 3. Ornamen Garis Atas Ungu & Emas
-    const topBarGradient = ctx.createLinearGradient(0, 0, stripWidth, 0);
+    // Ornamen Garis Atas Gradient Ungu-Emas (Persis CSS .photostrip-card::before)
+    const topBarGradient = ctx.createLinearGradient(cardX, cardY, cardX + cardWidth, cardY);
     topBarGradient.addColorStop(0, '#8b3a77');
     topBarGradient.addColorStop(0.5, '#dfb15b');
     topBarGradient.addColorStop(1, '#8b3a77');
     ctx.fillStyle = topBarGradient;
-    ctx.fillRect(0, 0, stripWidth, 14);
+    ctx.fillRect(cardX, cardY, cardWidth, 8);
 
-    // 4. Header Teks
+    // 3. Header Teks
     ctx.textAlign = 'center';
     ctx.fillStyle = '#dfb15b';
-    ctx.font = 'bold 32px "Poppins", sans-serif';
-    ctx.fillText('✦ PHOTOBOOTH MEMORIES ✦', stripWidth / 2, 70);
+    ctx.font = 'bold 24px "Poppins", sans-serif';
+    ctx.letterSpacing = '3px';
+    ctx.fillText('✦ PHOTOBOOTH MEMORIES ✦', cardX + (cardWidth / 2), cardY + 52);
 
     ctx.fillStyle = '#a3c4b8';
-    ctx.font = '17px "Poppins", sans-serif';
-    ctx.fillText('WebRTC Interactive Session', stripWidth / 2, 102);
+    ctx.font = '14px "Poppins", sans-serif';
+    ctx.letterSpacing = '1px';
+    ctx.fillText('WebRTC Interactive Session', cardX + (cardWidth / 2), cardY + 78);
 
     // Garis Pemisah Putus-putus Header
     ctx.strokeStyle = 'rgba(223, 177, 91, 0.4)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([8, 8]);
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 6]);
     ctx.beginPath();
-    ctx.moveTo(padding, 122);
-    ctx.lineTo(stripWidth - padding, 122);
+    ctx.moveTo(cardX + cardPadding, cardY + 98);
+    ctx.lineTo(cardX + cardWidth - cardPadding, cardY + 98);
     ctx.stroke();
-    ctx.setLineDash([]); // Reset line dash
+    ctx.setLineDash([]);
 
-    // 5. Gambar Foto 1 (Presisi tanpa distorsi)
-    const yPhoto1 = headerHeight + 15;
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(padding, yPhoto1, photoWidth, photoHeight);
-    ctx.drawImage(img1, padding, yPhoto1, photoWidth, photoHeight);
-    ctx.strokeStyle = '#dfb15b';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(padding, yPhoto1, photoWidth, photoHeight);
+    // 4. Render Frame Foto 1 (Dengan Rounded Frame & Tag)
+    const yPhoto1 = cardY + headerHeight + 6;
+    const xPhoto1 = cardX + cardPadding;
+    drawPhotoFrame(ctx, img1, xPhoto1, yPhoto1, photoWidth, photoHeight, frameRadius, tagPhoto1.textContent || 'POSE #1');
 
-    // Tag Foto 1
-    drawFrameTag(ctx, pose1Text, padding + photoWidth - 18, yPhoto1 + photoHeight - 18);
-
-    // 6. Gambar Foto 2 (Presisi tanpa distorsi)
+    // 5. Render Frame Foto 2 (Dengan Rounded Frame & Tag)
     const yPhoto2 = yPhoto1 + photoHeight + photoGap;
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(padding, yPhoto2, photoWidth, photoHeight);
-    ctx.drawImage(img2, padding, yPhoto2, photoWidth, photoHeight);
-    ctx.strokeStyle = '#dfb15b';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(padding, yPhoto2, photoWidth, photoHeight);
+    const xPhoto2 = cardX + cardPadding;
+    drawPhotoFrame(ctx, img2, xPhoto2, yPhoto2, photoWidth, photoHeight, frameRadius, tagPhoto2.textContent || 'POSE #2');
 
-    // Tag Foto 2
-    drawFrameTag(ctx, pose2Text, padding + photoWidth - 18, yPhoto2 + photoHeight - 18);
-
-    // 7. Footer
-    const yFooter = yPhoto2 + photoHeight + 35;
+    // 6. Footer Strip
+    const yFooter = yPhoto2 + photoHeight + 22;
     ctx.strokeStyle = 'rgba(223, 177, 91, 0.4)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([8, 8]);
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 6]);
     ctx.beginPath();
-    ctx.moveTo(padding, yFooter);
-    ctx.lineTo(stripWidth - padding, yFooter);
+    ctx.moveTo(cardX + cardPadding, yFooter);
+    ctx.lineTo(cardX + cardWidth - cardPadding, yFooter);
     ctx.stroke();
     ctx.setLineDash([]);
 
@@ -464,15 +486,25 @@ function renderAndSaveStrip(img1, img2) {
 
     ctx.textAlign = 'left';
     ctx.fillStyle = '#a3c4b8';
-    ctx.font = '17px "Poppins", sans-serif';
-    ctx.fillText('Sweet Memories', padding + 10, yFooter + 42);
+    ctx.font = '14px "Poppins", sans-serif';
+    ctx.fillText('Sweet Memories', cardX + cardPadding + 6, yFooter + 34);
 
     ctx.textAlign = 'right';
     ctx.fillStyle = '#dfb15b';
-    ctx.font = 'bold 17px "Poppins", sans-serif';
-    ctx.fillText(dateText, stripWidth - padding - 10, yFooter + 42);
+    ctx.font = 'bold 14px "Poppins", sans-serif';
+    ctx.fillText(dateText, cardX + cardWidth - cardPadding - 6, yFooter + 34);
 
-    // 8. Download Strip Canvas
+    ctx.restore(); // Restore dari clipping kartu
+
+    // 7. Gambar Border Emas Kartu Utama (Persis 3px solid #dfb15b)
+    ctx.save();
+    drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, cardRadius);
+    ctx.strokeStyle = '#dfb15b';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.restore();
+
+    // 8. Trigger Download File PNG
     const stripDataURL = stripCanvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = stripDataURL;
@@ -482,26 +514,57 @@ function renderAndSaveStrip(img1, img2) {
     document.body.removeChild(link);
 }
 
-function drawFrameTag(ctx, text, rightX, bottomY) {
+// Fungsi menggambar frame foto dengan sudut membulat dan pill tag badge persis seperti CSS preview
+function drawPhotoFrame(ctx, img, x, y, width, height, radius, tagText) {
     ctx.save();
-    ctx.font = 'bold 15px "Poppins", sans-serif';
-    const tagText = (text || 'POSE').toUpperCase();
-    const textWidth = ctx.measureText(tagText).width;
-    const tagPadding = 12;
-    const tagH = 32;
-    const tagW = textWidth + (tagPadding * 2);
-    const tagX = rightX - tagW;
-    const tagY = bottomY - tagH;
 
-    ctx.fillStyle = 'rgba(5, 38, 27, 0.90)';
-    ctx.fillRect(tagX, tagY, tagW, tagH);
-    ctx.strokeStyle = '#dfb15b';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(tagX, tagY, tagW, tagH);
+    // Gambar Background Frame Hitam
+    drawRoundedRect(ctx, x, y, width, height, radius);
+    ctx.fillStyle = '#000000';
+    ctx.fill();
 
-    ctx.fillStyle = '#dfb15b';
-    ctx.textAlign = 'center';
-    ctx.fillText(tagText, tagX + (tagW / 2), tagY + 22);
+    // Clip foto di dalam sudut rounded frame
+    ctx.save();
+    drawRoundedRect(ctx, x, y, width, height, radius);
+    ctx.clip();
+    ctx.drawImage(img, x, y, width, height);
+    ctx.restore();
+
+    // Border Frame Foto (Persis 2px solid rgba(223, 177, 91, 0.45))
+    drawRoundedRect(ctx, x, y, width, height, radius);
+    ctx.strokeStyle = 'rgba(223, 177, 91, 0.45)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Gambar Pill Tag Badge (Persis CSS .strip-frame .frame-tag)
+    if (tagText) {
+        ctx.font = 'bold 13px "Poppins", sans-serif';
+        const formattedTag = tagText.toUpperCase();
+        const textWidth = ctx.measureText(formattedTag).width;
+        const tagPaddingX = 14;
+        const tagH = 26;
+        const tagW = textWidth + (tagPaddingX * 2);
+        const tagRadius = 12;
+        const tagX = x + width - tagW - 12;
+        const tagY = y + height - tagH - 12;
+
+        // Background Pill
+        drawRoundedRect(ctx, tagX, tagY, tagW, tagH, tagRadius);
+        ctx.fillStyle = 'rgba(5, 38, 27, 0.90)';
+        ctx.fill();
+
+        // Border Pill
+        ctx.strokeStyle = '#dfb15b';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Teks Pill
+        ctx.fillStyle = '#dfb15b';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(formattedTag, tagX + (tagW / 2), tagY + (tagH / 2) + 1);
+    }
+
     ctx.restore();
 }
 
