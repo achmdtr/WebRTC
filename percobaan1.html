@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <!-- BLOK 1: METADATA & IMPORT FONT -->
+    <!-- Fungsi: Menentukan standar dokumen HTML5, konfigurasi tampilan responsif untuk layar HP/Desktop, serta mengimpor font 'Poppins' dari Google Fonts -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percobaan 1 - getUserMedia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* BLOK 2: PALETTE WARNA CSS (:ROOT) */
+        /* Fungsi: Menyimpan variabel warna utama bertema 'Green Sands' (kombinasi hijau tua emerald, ungu deep, dan aksen emas) untuk konsistensi seluruh elemen */
+        :root {
+            --green-dark: #0a3a2a;
+            --green-deep: #05261b;
+            --green-emerald: #0f523c;
+            --purple-primary: #5e2750;
+            --purple-accent: #8b3a77;
+            --gold-accent: #dfb15b;
+            --text-light: #f4f9f6;
+            --text-muted: #a3c4b8;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* BLOK 3: RESET CSS & LAYOUT BODY */
+        /* Fungsi: Mengatur ulang margin/padding awal dan membuat background bergradasi serta memposisikan kontainer tepat di tengah layar secara vertikal & horizontal */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-dark) 60%, var(--purple-primary) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* BLOK 4: DESAIN CONTAINER UTAMA (GLASSMORPHISM) */
+        /* Fungsi: Menata kotak kartu utama dengan efek efek kaca buram transparan (backdrop-filter blur), border emas halus, dan bayangan lembut */
+        #container {
+            width: 100%;
+            max-width: 720px;
+            background: rgba(10, 58, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(223, 177, 91, 0.25);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px var(--shadow-color), 0 0 20px rgba(139, 58, 119, 0.2);
+            text-align: center;
+        }
+
+        /* BLOK 5: STYLING HEADER & BADGE HIGHLIGHT */
+        /* Fungsi: Menata tampilan label badge kapsul warna ungu dan teks judul H1 dengan warna gradasi putih-emas */
+        .highlight {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--purple-primary), var(--purple-accent));
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(94, 39, 80, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .highlight p {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--text-light);
+            line-height: 1.4;
+            background: linear-gradient(to right, #ffffff, var(--gold-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* BLOK 6: STYLING FRAME VIDEO WEBCAM */
+        /* Fungsi: Mengatur tampilan bingkai pemutar video agar sudutnya membulat, memiliki outline emas, serta memastikan tayangan video proporsional */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 14px;
+            overflow: hidden;
+            background-color: #000;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(223, 177, 91, 0.3);
+        }
+
+        video#gum-local {
+            width: 100%;
+            height: auto;
+            max-height: 480px;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* BLOK 7: STYLING PESAN ERROR */
+        /* Fungsi: Menata bentuk dan warna kotak alert merah transparan jika terjadi kegagalan/penolakan akses kamera */
+        #errorMsg {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #errorMsg p {
+            background-color: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid #dc3545;
+            color: #ff8b94;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        /* BLOK 8: MEDIA QUERY RESPONSISITAS HP */
+        /* Fungsi: Penyesuaian jarak padding dan ukuran font judul ketika dibuka dari perangkat berlayar kecil (smartphone) */
+        @media (max-width: 600px) {
+            #container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- BLOK 9: STRUKTUR DOKUMEN & ELEMEN MEDIA -->
+<!-- Fungsi: Tempat menampilkan badge, judul halaman, elemen video tempat alur stream kamera diputar, dan penampung pesan error -->
+<div id="container">
+    <div class="highlight">
+        <p>Get Media API</p>
+    </div>
+    <h1>Percobaan 1 : Menampilkan Webcam Dengan HTML5</h1>
+    
+    <div class="video-wrapper">
+        <video id="gum-local" autoplay playsinline></video>
+    </div>
+    
+    <div id="errorMsg"></div>
+</div>
+
+<!-- BLOK 10: PEMANGGILAN SCRIPT JAVASCRIPT -->
+<!-- Fungsi: Menghubungkan logika pemrosesan kamera di file js/main.js ke dalam halaman HTML ini -->
+<script src="js/main.js"></script>
+</body>
+</html>

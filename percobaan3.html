@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <!-- BLOK 1: METADATA DOKUMEN & KONEKSI FONT -->
+    <!-- Fungsi: Menentukan standar encoding UTF-8, responsivitas layar HP/Desktop, serta mengimpor font 'Poppins' dari Google Fonts -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percobaan 3 - Filter CSS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* BLOK 2: PALETTE WARNA CSS (:ROOT) */
+        /* Fungsi: Menyimpan variabel warna utama bertema 'Green Sands' (hijau tua emerald, ungu deep, ungu hover, dan aksen emas) untuk konsistensi seluruh elemen */
+        :root {
+            --green-dark: #0a3a2a;
+            --green-deep: #05261b;
+            --purple-primary: #5e2750;
+            --purple-accent: #8b3a77;
+            --purple-hover: #a0438a;
+            --gold-accent: #dfb15b;
+            --text-light: #f4f9f6;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* BLOK 3: KELAS EFEK FILTER CSS */
+        /* Fungsi: Menyediakan kelas-kelas CSS efek visual (none, blur, grayscale, invert, sepia, hue-rotate) yang nantinya diterapkan ke video & canvas via JS */
+        .none {
+            -webkit-filter: none;
+            filter: none;
+        }
+        .blur {
+            -webkit-filter: blur(4px);
+            filter: blur(4px);
+        }
+        .grayscale {
+            -webkit-filter: grayscale(1);
+            filter: grayscale(1);
+        }
+        .invert {
+            -webkit-filter: invert(1);
+            filter: invert(1);
+        }
+        .sepia {
+            -webkit-filter: sepia(1);
+            filter: sepia(1);
+        }
+        .hue-rotate {
+            -webkit-filter: hue-rotate(90deg);
+            filter: hue-rotate(90deg);
+        }
+
+        /* BLOK 4: RESET CSS & LAYOUT BODY */
+        /* Fungsi: Mengatur margin/padding awal dan membuat background gradasi menyilang serta memposisikan kontainer tepat di tengah layar */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-dark) 60%, var(--purple-primary) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        /* BLOK 5: DESAIN CONTAINER UTAMA (GLASSMORPHISM) */
+        /* Fungsi: Menata kartu utama dengan efek kaca buram transparan (backdrop-filter blur), border emas halus, dan bayangan ganda yang lembut */
+        #container {
+            width: 100%;
+            max-width: 840px;
+            background: rgba(10, 58, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(223, 177, 91, 0.25);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px var(--shadow-color), 0 0 20px rgba(139, 58, 119, 0.2);
+            text-align: center;
+        }
+
+        /* BLOK 6: STYLING HEADER & BADGE HIGHLIGHT */
+        /* Fungsi: Menata tampilan label badge kapsul warna ungu di atas dan teks judul H1 dengan warna gradasi putih ke emas */
+        .highlight {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--purple-primary), var(--purple-accent));
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(94, 39, 80, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .highlight p {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-light);
+            line-height: 1.4;
+            background: linear-gradient(to right, #ffffff, var(--gold-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* BLOK 7: BAR KONTROL FILTER & TOMBOL ACTIONS */
+        /* Fungsi: Menata baris tempat pilihan dropdown filter (<select>) dan tombol snapshot agar berbentuk pill-shaped dan terlihat rapi */
+        .controls-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: rgba(5, 38, 27, 0.6);
+            border: 1px solid rgba(223, 177, 91, 0.2);
+            padding: 14px 20px;
+            border-radius: 50px;
+            margin-bottom: 25px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--gold-accent);
+        }
+
+        select#filter {
+            background-color: var(--green-deep);
+            color: var(--text-light);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border: 1px solid rgba(223, 177, 91, 0.3);
+            border-radius: 25px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select#filter:focus {
+            border-color: var(--purple-accent);
+            box-shadow: 0 0 10px rgba(139, 58, 119, 0.5);
+        }
+
+        .btn-snapshot {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--purple-accent) 0%, var(--purple-primary) 100%);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 9px 22px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(94, 39, 80, 0.4);
+        }
+
+        .btn-snapshot:hover {
+            background: linear-gradient(135deg, var(--purple-hover) 0%, var(--purple-accent) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(139, 58, 119, 0.6);
+        }
+
+        /* BLOK 8: LAYOUT GRID MEDIA (SIDE-BY-SIDE) */
+        /* Fungsi: Menata layout 2 kolom responsif untuk menyejajarkan tayangan video langsung di kiri dan hasil canvas di kanan */
+        .media-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 640px) {
+            .media-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* BLOK 9: STYLING KARTU MEDIA & ELEMENT TRANSISI FILTER */
+        /* Fungsi: Menata kartu pembungkus media, judul sub-kartu, frame video/canvas, serta efek transisi pergantian filter CSS secara halus */
+        .media-card {
+            background: rgba(5, 38, 27, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .media-card h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gold-accent);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .media-frame {
+            width: 100%;
+            height: 240px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(223, 177, 91, 0.2);
+            position: relative;
+        }
+
+        video, canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: filter 0.3s ease, -webkit-filter 0.3s ease;
+        }
+
+        canvas.empty {
+            display: none;
+        }
+
+        .canvas-placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        /* BLOK 10: STYLING KOTAK PESAN ERROR */
+        /* Fungsi: Menata tampilan kotak peringatan merah transparan jika terjadi penolakan atau kendala akses kamera */
+        #errorMsg {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #errorMsg p {
+            background-color: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid #dc3545;
+            color: #ff8b94;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- BLOK 11: STRUKTUR DOKUMEN HTML & KONTEN ANTAREMUKA -->
+<!-- Fungsi: Wadah utama berisi badge header, pilihan dropdown filter, tombol pemotret foto, tampilan video & canvas, serta elemen pesan error -->
+<div id="container">
+    <div class="highlight">
+        <p>Get Media + CSS Filters</p>
+    </div>
+    <h1>Percobaan 3 : Filter Real-time & Snapshot</h1>
+
+    <!-- Bar Pilihan Filter & Tombol Snapshot -->
+    <div class="controls-bar">
+        <div class="control-group">
+            <label for="filter">Pilih Filter:</label>
+            <select id="filter">
+                <option value="none">None</option>
+                <option value="blur">Blur</option>
+                <option value="grayscale">Grayscale</option>
+                <option value="invert">Invert</option>
+                <option value="sepia">Sepia</option>
+                <option value="hue-rotate">Hue Rotate</option>
+            </select>
+        </div>
+
+        <button id="snapshot" class="btn-snapshot">
+            📸 Take Snapshot
+        </button>
+    </div>
+
+    <!-- Grid Media (Video Filtered & Hasil Snapshot Canvas) -->
+    <div class="media-grid">
+        <div class="media-card">
+            <h3>Live Video (Filtered)</h3>
+            <div class="media-frame">
+                <video autoplay playsinline></video>
+            </div>
+        </div>
+
+        <div class="media-card">
+            <h3>Snapshot Canvas</h3>
+            <div class="media-frame">
+                <span class="canvas-placeholder" id="placeholder">Hasil foto dengan filter akan muncul di sini</span>
+                <canvas class="empty"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorMsg"></div>
+</div>
+
+<!-- BLOK 12: PEMANGGILAN SCRIPT JAVASCRIPT -->
+<!-- Fungsi: Mengimpor file skrip js/main3.js yang menangani logika pengubahan filter CSS real-time dan pemotretan gambar ke canvas -->
+<script src="js/main3.js"></script>
+</body>
+</html>

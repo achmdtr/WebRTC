@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <!-- BLOK 1: METADATA DOKUMEN & IMPORT FONT POPSINS -->
+    <!-- Fungsi: Menentukan charset HTML5 UTF-8, responsivitas tampilan HP/Desktop, deskripsi aplikasi, serta mengimpor font 'Poppins' dari Google Fonts -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WebRTC Audio Demo">
+    <title>Percobaan 4 - Get Audio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* BLOK 2: PALETTE WARNA CSS (:ROOT) */
+        /* Fungsi: Menyimpan variabel warna utama bertema 'Green Sands' (hijau tua emerald, ungu deep, ungu aksen, dan emas) untuk konsistensi seluruh elemen */
+        :root {
+            --green-dark: #0a3a2a;
+            --green-deep: #05261b;
+            --purple-primary: #5e2750;
+            --purple-accent: #8b3a77;
+            --gold-accent: #dfb15b;
+            --text-light: #f4f9f6;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* BLOK 3: RESET CSS & LAYOUT BODY */
+        /* Fungsi: Mengatur margin/padding awal dan membuat background gradasi menyilang serta memposisikan kontainer tepat di tengah layar secara vertikal & horizontal */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-dark) 60%, var(--purple-primary) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* BLOK 4: DESAIN CONTAINER UTAMA (GLASSMORPHISM) */
+        /* Fungsi: Menata kartu utama dengan efek kaca buram transparan (backdrop-filter blur), border emas halus, dan bayangan ganda yang lembut */
+        #container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(10, 58, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(223, 177, 91, 0.25);
+            border-radius: 20px;
+            padding: 35px 30px;
+            box-shadow: 0 15px 35px var(--shadow-color), 0 0 20px rgba(139, 58, 119, 0.2);
+            text-align: center;
+        }
+
+        /* BLOK 5: STYLING HEADER & BADGE HIGHLIGHT */
+        /* Fungsi: Menata tampilan label badge kapsul warna ungu di atas dan teks judul H1 dengan warna gradasi putih ke emas */
+        .highlight {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--purple-primary), var(--purple-accent));
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(94, 39, 80, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .highlight p {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--text-light);
+            line-height: 1.4;
+            background: linear-gradient(to right, #ffffff, var(--gold-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* BLOK 6: STYLING KARTU AUDIO & ANIMASI VISUAL */
+        /* Fungsi: Menata kartu wadah audio, ikon mikrofon beranimasi denyut (pulse keyframes), serta kontrol pemutar audio HTML5 */
+        .audio-card {
+            background: rgba(5, 38, 27, 0.6);
+            border: 1px solid rgba(223, 177, 91, 0.2);
+            border-radius: 16px;
+            padding: 25px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .audio-icon {
+            font-size: 2.5rem;
+            background: rgba(139, 58, 119, 0.3);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid var(--gold-accent);
+            box-shadow: 0 0 15px rgba(223, 177, 91, 0.3);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 15px rgba(223, 177, 91, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(139, 58, 119, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 0 15px rgba(223, 177, 91, 0.3); }
+        }
+
+        audio#gum-local {
+            width: 100%;
+            max-width: 400px;
+            height: 45px;
+            border-radius: 30px;
+            outline: none;
+        }
+
+        /* BLOK 7: STYLING KOTAK PERINGATAN HEADPHONE */
+        /* Fungsi: Menata tampilan kotak peringatan bernuansa emas/kuning untuk memberitahu efek feedback jika tidak memakai headphone */
+        .warning-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: rgba(223, 177, 91, 0.15);
+            border-left: 4px solid var(--gold-accent);
+            color: #f7e4b2;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .warning-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        /* BLOK 8: STYLING KOTAK PESAN ERROR */
+        /* Fungsi: Menata kotak pesan peringatan merah transparan jika terjadi masalah pada izin/perangkat mikrofon */
+        #errorMsg {
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        #errorMsg p {
+            background-color: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid #dc3545;
+            color: #ff8b94;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- BLOK 9: STRUKTUR DOKUMEN HTML & ELEMEN KONTEN -->
+<!-- Fungsi: Tempat meletakkan judul, kartu pemutar audio dengan mikrofon, peringatan gema/feedback, serta wadah pesan error -->
+<div id="container">
+    <div class="highlight">
+        <p>Get Media API</p>
+    </div>
+    
+    <h1>Percobaan 4: Get Audio</h1>
+
+    <!-- Kartu Pemutar Audio -->
+    <div class="audio-card">
+        <div class="audio-icon">🎙️</div>
+        <audio id="gum-local" controls autoplay></audio>
+    </div>
+
+    <!-- Peringatan Feedback Audio -->
+    <div class="warning-box">
+        <span class="warning-icon">⚠️</span>
+        <p class="warning">
+            <strong>Peringatan:</strong> Jika Anda tidak menggunakan earphone/headphone, memutar audio dapat menyebabkan efek <em>feedback</em> (gema melengking).
+        </p>
+    </div>
+
+    <!-- Wadah Pesan Kesalahan -->
+    <div id="errorMsg"></div>
+</div>
+
+<!-- BLOK 10: PEMANGGILAN SCRIPT JAVASCRIPT -->
+<!-- Fungsi: Mengimpor file skrip js/main4.js yang menangani logika pemrosesan stream audio dari mikrofon -->
+<script src="js/main4.js"></script>
+
+</body>
+</html>

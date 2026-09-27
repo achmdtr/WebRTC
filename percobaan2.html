@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <!-- BLOK 1: METADATA & IMPORT FONT -->
+    <!-- Fungsi: Menentukan konfigurasi HTML5, standar charset UTF-8, responsivitas layar HP/Desktop, serta mengimpor font 'Poppins' dari Google Fonts -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percobaan 2 - Take Snapshot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* BLOK 2: PALETTE WARNA CSS (:ROOT) */
+        /* Fungsi: Menyimpan variabel warna utama bertema 'Green Sands' (kombinasi hijau tua emerald, ungu deep, ungu hover, dan aksen emas) untuk konsistensi seluruh elemen */
+        :root {
+            --green-dark: #0a3a2a;
+            --green-deep: #05261b;
+            --purple-primary: #5e2750;
+            --purple-accent: #8b3a77;
+            --purple-hover: #a0438a;
+            --gold-accent: #dfb15b;
+            --text-light: #f4f9f6;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* BLOK 3: RESET CSS & LAYOUT BODY */
+        /* Fungsi: Mengatur ulang margin/padding awal dan membuat background bergradasi menyilang serta memposisikan kontainer tepat di tengah layar secara vertikal & horizontal */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-dark) 60%, var(--purple-primary) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        /* BLOK 4: DESAIN CONTAINER UTAMA (GLASSMORPHISM) */
+        /* Fungsi: Menata kotak kartu utama dengan efek kaca buram transparan (backdrop-filter blur), border emas halus, dan bayangan ganda yang lembut */
+        #container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(10, 58, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(223, 177, 91, 0.25);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px var(--shadow-color), 0 0 20px rgba(139, 58, 119, 0.2);
+            text-align: center;
+        }
+
+        /* BLOK 5: STYLING HEADER & BADGE HIGHLIGHT */
+        /* Fungsi: Menata tampilan label badge kapsul warna ungu di atas dan teks judul H1 dengan warna gradasi putih ke emas */
+        .highlight {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--purple-primary), var(--purple-accent));
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(94, 39, 80, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .highlight p {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--text-light);
+            line-height: 1.4;
+            background: linear-gradient(to right, #ffffff, var(--gold-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* BLOK 6: LAYOUT GRID MEDIA (SIDE-BY-SIDE) */
+        /* Fungsi: Mengatur tampilan grid 2 kolom secara responsif untuk menempatkan Live Camera di sebelah kiri dan Hasil Snapshot Canvas di sebelah kanan */
+        .media-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        @media (min-width: 640px) {
+            .media-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* BLOK 7: STYLING KARTU MEDIA & FRAME KAMERA/CANVAS */
+        /* Fungsi: Menata kartu pembungkus media, judul sub-kartu berwarna emas, serta bingkai pemutar video dan hasil snapshot canvas agar proporsional */
+        .media-card {
+            background: rgba(5, 38, 27, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .media-card h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gold-accent);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .media-frame {
+            width: 100%;
+            height: 240px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(223, 177, 91, 0.2);
+            position: relative;
+        }
+
+        video, canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* State sembunyikan canvas sebelum ada foto */
+        canvas.empty {
+            display: none;
+        }
+
+        .canvas-placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        /* BLOK 8: STYLING TOMBOL SNAPSHOT */
+        /* Fungsi: Menata tombol pemotret foto dengan warna gradasi ungu khas, efek elevasi hover, dan animasi tekan (active state) */
+        .btn-snapshot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--purple-accent) 0%, var(--purple-primary) 100%);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px 28px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 18px rgba(94, 39, 80, 0.5);
+        }
+
+        .btn-snapshot:hover {
+            background: linear-gradient(135deg, var(--purple-hover) 0%, var(--purple-accent) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139, 58, 119, 0.6);
+        }
+
+        .btn-snapshot:active {
+            transform: translateY(1px);
+        }
+
+        /* BLOK 9: STYLING KOTAK PESAN ERROR */
+        /* Fungsi: Menata tampilan pesan peringatan merah transparan jika terjadi masalah pada akses kamera */
+        #errorMsg {
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        #errorMsg p {
+            background-color: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid #dc3545;
+            color: #ff8b94;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- BLOK 10: STRUKTUR DOKUMEN & KONTEN MEDIA -->
+<!-- Fungsi: Tempat meletakkan judul, grid 2 kolom (kamera langsung & canvas tangkapan foto), tombol pemotret foto, dan kontainer pesan error -->
+<div id="container">
+    <div class="highlight">
+        <p>Get Media API</p>
+    </div>
+    <h1>Percobaan 2: Take Snapshot</h1>
+    
+    <div class="media-grid">
+        <!-- Kolom Kamera Langsung -->
+        <div class="media-card">
+            <h3>Live Camera</h3>
+            <div class="media-frame">
+                <video autoplay playsinline></video>
+            </div>
+        </div>
+        
+        <!-- Kolom Hasil Tangkapan Gambar (Canvas) -->
+        <div class="media-card">
+            <h3>Snapshot Result</h3>
+            <div class="media-frame">
+                <span class="canvas-placeholder" id="placeholder">Klik tombol di bawah untuk mengambil gambar</span>
+                <canvas class="empty"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tombol Pemotret Foto -->
+    <button class="btn-snapshot" id="snapshotBtn">
+        📸 Take Snapshot
+    </button>
+    
+    <!-- Wadah Pesan Error -->
+    <div id="errorMsg"></div>
+</div>
+
+<!-- BLOK 11: PEMANGGILAN SCRIPT JAVASCRIPT -->
+<!-- Fungsi: Mengimpor file skrip js/main2.js yang mengontrol logika kamera dan pembuatan snapshot gambar ke canvas -->
+<script src="js/main2.js"></script>
+</body>
+</html>
