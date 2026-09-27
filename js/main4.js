@@ -24,13 +24,18 @@ function handleSuccess(stream) {
     if (audioTracks.length > 0) {
         console.log('Using audio device: ' + audioTracks[0].label);
     }
-    
-    stream.oninactive = function() {
+
+    stream.oninactive = function () {
         console.log('Stream ended');
     };
-    
+
     window.stream = stream; // Menyimpan objek stream ke variabel global browser
     audio.srcObject = stream;
+
+    const audioStatus = document.querySelector('#audioStatus');
+    if (audioStatus) {
+        audioStatus.innerText = 'Mikrofon aktif';
+    }
 }
 
 /* ==========================================================================

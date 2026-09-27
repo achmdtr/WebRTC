@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <!-- BLOK 1: METADATA DOKUMEN & KONEKSI FONT -->
     <!-- Fungsi: Menentukan standar encoding UTF-8, responsivitas layar HP/Desktop, serta mengimpor font 'Poppins' dari Google Fonts -->
@@ -9,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
         /* BLOK 2: PALETTE WARNA CSS (:ROOT) */
         /* Fungsi: Menyimpan variabel warna utama bertema 'Green Sands' (hijau tua emerald, ungu deep, ungu hover, dan aksen emas) untuk konsistensi seluruh elemen */
@@ -30,25 +31,43 @@
             -webkit-filter: none;
             filter: none;
         }
+
         .blur {
             -webkit-filter: blur(4px);
             filter: blur(4px);
         }
+
         .grayscale {
             -webkit-filter: grayscale(1);
             filter: grayscale(1);
         }
+
         .invert {
             -webkit-filter: invert(1);
             filter: invert(1);
         }
+
         .sepia {
             -webkit-filter: sepia(1);
             filter: sepia(1);
         }
+
         .hue-rotate {
             -webkit-filter: hue-rotate(90deg);
             filter: hue-rotate(90deg);
+        }
+
+        .brightness {
+            -webkit-filter: brightness(1.75);
+            filter: brightness(1.75);
+        }
+
+        video.flip {
+            transform: scaleX(1) !important;
+        }
+
+        canvas.flip {
+            transform: scaleX(-1);
         }
 
         /* BLOK 4: RESET CSS & LAYOUT BODY */
@@ -234,7 +253,16 @@
             position: relative;
         }
 
-        video, canvas {
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transform: scaleX(-1);
+            transition: filter 0.3s ease, -webkit-filter 0.3s ease, transform 0.3s ease;
+        }
+
+        canvas {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -270,58 +298,63 @@
         }
     </style>
 </head>
+
 <body>
 
-<!-- BLOK 11: STRUKTUR DOKUMEN HTML & KONTEN ANTAREMUKA -->
-<!-- Fungsi: Wadah utama berisi badge header, pilihan dropdown filter, tombol pemotret foto, tampilan video & canvas, serta elemen pesan error -->
-<div id="container">
-    <div class="highlight">
-        <p>Get Media + CSS Filters</p>
-    </div>
-    <h1>Percobaan 3 : Filter Real-time & Snapshot</h1>
+    <!-- BLOK 11: STRUKTUR DOKUMEN HTML & KONTEN ANTAREMUKA -->
+    <!-- Fungsi: Wadah utama berisi badge header, pilihan dropdown filter, tombol pemotret foto, tampilan video & canvas, serta elemen pesan error -->
+    <div id="container">
+        <div class="highlight">
+            <p>Get Media + CSS Filters</p>
+        </div>
+        <h1>Percobaan 3 : Filter Real-time & Snapshot</h1>
 
-    <!-- Bar Pilihan Filter & Tombol Snapshot -->
-    <div class="controls-bar">
-        <div class="control-group">
-            <label for="filter">Pilih Filter:</label>
-            <select id="filter">
-                <option value="none">None</option>
-                <option value="blur">Blur</option>
-                <option value="grayscale">Grayscale</option>
-                <option value="invert">Invert</option>
-                <option value="sepia">Sepia</option>
-                <option value="hue-rotate">Hue Rotate</option>
-            </select>
+        <!-- Bar Pilihan Filter & Tombol Snapshot -->
+        <div class="controls-bar">
+            <div class="control-group">
+                <label for="filter">Pilih Filter:</label>
+                <select id="filter">
+                    <option value="none">None</option>
+                    <option value="blur">Blur</option>
+                    <option value="grayscale">Grayscale</option>
+                    <option value="invert">Invert</option>
+                    <option value="sepia">Sepia</option>
+                    <option value="hue-rotate">Hue Rotate</option>
+                    <option value="brightness">Brightness</option>
+                    <option value="flip">Flip Horizontal</option>
+                </select>
+            </div>
+
+            <button id="snapshot" class="btn-snapshot">
+                📸 Take Snapshot
+            </button>
         </div>
 
-        <button id="snapshot" class="btn-snapshot">
-            📸 Take Snapshot
-        </button>
-    </div>
+        <!-- Grid Media (Video Filtered & Hasil Snapshot Canvas) -->
+        <div class="media-grid">
+            <div class="media-card">
+                <h3>Live Video (Filtered)</h3>
+                <div class="media-frame">
+                    <video autoplay playsinline></video>
+                </div>
+            </div>
 
-    <!-- Grid Media (Video Filtered & Hasil Snapshot Canvas) -->
-    <div class="media-grid">
-        <div class="media-card">
-            <h3>Live Video (Filtered)</h3>
-            <div class="media-frame">
-                <video autoplay playsinline></video>
+            <div class="media-card">
+                <h3>Snapshot Canvas</h3>
+                <div class="media-frame">
+                    <span class="canvas-placeholder" id="placeholder">Hasil foto dengan filter akan muncul di
+                        sini</span>
+                    <canvas class="empty"></canvas>
+                </div>
             </div>
         </div>
 
-        <div class="media-card">
-            <h3>Snapshot Canvas</h3>
-            <div class="media-frame">
-                <span class="canvas-placeholder" id="placeholder">Hasil foto dengan filter akan muncul di sini</span>
-                <canvas class="empty"></canvas>
-            </div>
-        </div>
+        <div id="errorMsg"></div>
     </div>
 
-    <div id="errorMsg"></div>
-</div>
-
-<!-- BLOK 12: PEMANGGILAN SCRIPT JAVASCRIPT -->
-<!-- Fungsi: Mengimpor file skrip js/main3.js yang menangani logika pengubahan filter CSS real-time dan pemotretan gambar ke canvas -->
-<script src="js/main3.js"></script>
+    <!-- BLOK 12: PEMANGGILAN SCRIPT JAVASCRIPT -->
+    <!-- Fungsi: Mengimpor file skrip js/main3.js yang menangani logika pengubahan filter CSS real-time dan pemotretan gambar ke canvas -->
+    <script src="js/main3.js"></script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <!-- BLOK 1: METADATA & IMPORT FONT -->
     <!-- Fungsi: Menentukan standar dokumen HTML5, konfigurasi tampilan responsif untuk layar HP/Desktop, serta mengimpor font 'Poppins' dari Google Fonts -->
@@ -9,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
         /* BLOK 2: PALETTE WARNA CSS (:ROOT) */
         /* Fungsi: Menyimpan variabel warna utama bertema 'Green Sands' (kombinasi hijau tua emerald, ungu deep, dan aksen emas) untuk konsistensi seluruh elemen */
@@ -108,6 +109,7 @@
             max-height: 480px;
             display: block;
             object-fit: cover;
+            transform: scaleX(-1);
         }
 
         /* BLOK 7: STYLING PESAN ERROR */
@@ -140,25 +142,31 @@
         }
     </style>
 </head>
+
 <body>
 
-<!-- BLOK 9: STRUKTUR DOKUMEN & ELEMEN MEDIA -->
-<!-- Fungsi: Tempat menampilkan badge, judul halaman, elemen video tempat alur stream kamera diputar, dan penampung pesan error -->
-<div id="container">
-    <div class="highlight">
-        <p>Get Media API</p>
-    </div>
-    <h1>Percobaan 1 : Menampilkan Webcam Dengan HTML5</h1>
-    
-    <div class="video-wrapper">
-        <video id="gum-local" autoplay playsinline></video>
-    </div>
-    
-    <div id="errorMsg"></div>
-</div>
+    <!-- BLOK 9: STRUKTUR DOKUMEN & ELEMEN MEDIA -->
+    <!-- Fungsi: Tempat menampilkan badge, judul halaman, elemen video tempat alur stream kamera diputar, dan penampung pesan error -->
+    <div id="container">
+        <div class="highlight">
+            <p>Get Media API</p>
+        </div>
+        <h1>Percobaan 1 : Menampilkan Webcam Dengan HTML5</h1>
 
-<!-- BLOK 10: PEMANGGILAN SCRIPT JAVASCRIPT -->
-<!-- Fungsi: Menghubungkan logika pemrosesan kamera di file js/main.js ke dalam halaman HTML ini -->
-<script src="js/main.js"></script>
+        <div class="video-wrapper">
+            <video id="gum-local" autoplay playsinline></video>
+        </div>
+
+        <p id="cameraStatus"
+            style="margin-top: 15px; font-weight: 600; color: #2ecc71; background: rgba(46, 204, 113, 0.15); padding: 10px 16px; border-radius: 8px; border: 1px solid rgba(46, 204, 113, 0.3); display: inline-block;">
+        </p>
+
+        <div id="errorMsg"></div>
+    </div>
+
+    <!-- BLOK 10: PEMANGGILAN SCRIPT JAVASCRIPT -->
+    <!-- Fungsi: Menghubungkan logika pemrosesan kamera di file js/main.js ke dalam halaman HTML ini -->
+    <script src="js/main.js"></script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <!-- BLOK 1: METADATA & IMPORT FONT -->
     <!-- Fungsi: Menentukan konfigurasi HTML5, standar charset UTF-8, responsivitas layar HP/Desktop, serta mengimpor font 'Poppins' dari Google Fonts -->
@@ -9,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
         /* BLOK 2: PALETTE WARNA CSS (:ROOT) */
         /* Fungsi: Menyimpan variabel warna utama bertema 'Green Sands' (kombinasi hijau tua emerald, ungu deep, ungu hover, dan aksen emas) untuk konsistensi seluruh elemen */
@@ -139,7 +140,15 @@
             position: relative;
         }
 
-        video, canvas {
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transform: scaleX(-1);
+        }
+
+        canvas {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -205,46 +214,53 @@
         }
     </style>
 </head>
+
 <body>
 
-<!-- BLOK 10: STRUKTUR DOKUMEN & KONTEN MEDIA -->
-<!-- Fungsi: Tempat meletakkan judul, grid 2 kolom (kamera langsung & canvas tangkapan foto), tombol pemotret foto, dan kontainer pesan error -->
-<div id="container">
-    <div class="highlight">
-        <p>Get Media API</p>
-    </div>
-    <h1>Percobaan 2: Take Snapshot</h1>
-    
-    <div class="media-grid">
-        <!-- Kolom Kamera Langsung -->
-        <div class="media-card">
-            <h3>Live Camera</h3>
-            <div class="media-frame">
-                <video autoplay playsinline></video>
+    <!-- BLOK 10: STRUKTUR DOKUMEN & KONTEN MEDIA -->
+    <!-- Fungsi: Tempat meletakkan judul, grid 2 kolom (kamera langsung & canvas tangkapan foto), tombol pemotret foto, dan kontainer pesan error -->
+    <div id="container">
+        <div class="highlight">
+            <p>Get Media API</p>
+        </div>
+        <h1>Percobaan 2: Take Snapshot</h1>
+
+        <div class="media-grid">
+            <!-- Kolom Kamera Langsung -->
+            <div class="media-card">
+                <h3>Live Camera</h3>
+                <div class="media-frame">
+                    <video autoplay playsinline></video>
+                </div>
+            </div>
+
+            <!-- Kolom Hasil Tangkapan Gambar (Canvas) -->
+            <div class="media-card">
+                <h3>Snapshot Result</h3>
+                <div class="media-frame">
+                    <span class="canvas-placeholder" id="placeholder">Klik tombol di bawah untuk mengambil gambar</span>
+                    <canvas class="empty"></canvas>
+                </div>
             </div>
         </div>
-        
-        <!-- Kolom Hasil Tangkapan Gambar (Canvas) -->
-        <div class="media-card">
-            <h3>Snapshot Result</h3>
-            <div class="media-frame">
-                <span class="canvas-placeholder" id="placeholder">Klik tombol di bawah untuk mengambil gambar</span>
-                <canvas class="empty"></canvas>
-            </div>
+
+        <!-- Tombol Pemotret Foto & Reset -->
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn-snapshot" id="snapshotBtn">
+                📸 Take Snapshot
+            </button>
+            <button class="btn-snapshot" id="resetBtn" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); box-shadow: 0 6px 18px rgba(192, 57, 43, 0.4);">
+                🔄 Ulangi
+            </button>
         </div>
+
+        <!-- Wadah Pesan Error -->
+        <div id="errorMsg"></div>
     </div>
 
-    <!-- Tombol Pemotret Foto -->
-    <button class="btn-snapshot" id="snapshotBtn">
-        📸 Take Snapshot
-    </button>
-    
-    <!-- Wadah Pesan Error -->
-    <div id="errorMsg"></div>
-</div>
-
-<!-- BLOK 11: PEMANGGILAN SCRIPT JAVASCRIPT -->
-<!-- Fungsi: Mengimpor file skrip js/main2.js yang mengontrol logika kamera dan pembuatan snapshot gambar ke canvas -->
-<script src="js/main2.js"></script>
+    <!-- BLOK 11: PEMANGGILAN SCRIPT JAVASCRIPT -->
+    <!-- Fungsi: Mengimpor file skrip js/main2.js yang mengontrol logika kamera dan pembuatan snapshot gambar ke canvas -->
+    <script src="js/main2.js"></script>
 </body>
+
 </html>

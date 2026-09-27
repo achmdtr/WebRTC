@@ -9,6 +9,7 @@ const video = document.querySelector('video');
 const canvas = window.canvas = document.querySelector('canvas');
 const placeholder = document.querySelector('#placeholder');
 const button = document.querySelector('#snapshotBtn');
+const resetButton = document.querySelector('#resetBtn');
 const errorElement = document.querySelector('#errorMsg');
 
 // Set resolusi default untuk canvas
@@ -16,10 +17,9 @@ canvas.width = 640;
 canvas.height = 480;
 
 /* ==========================================================================
-   BLOK 2: EVENT HANDLER TOMBOL SNAPSHOT (PENGAMBILAN GAMBAR)
-   Fungsi: Ketika tombol 'Take Snapshot' diklik, fungsi ini mengambil frame
-   video yang sedang aktif, menyesuaikan ukuran canvas dengan resolusi video asli,
-   lalu menggambar frame tersebut ke canvas serta menyembunyikan placeholder.
+   BLOK 2: EVENT HANDLER TOMBOL SNAPSHOT & RESET (ULANGI)
+   Fungsi: Mengambil snapshot frame video ke canvas, dan menghapus canvas
+   serta menampilkan kembali placeholder ketika tombol Ulangi diklik.
    ========================================================================== */
 button.onclick = function() {
     if (video.videoWidth && video.videoHeight) {
@@ -27,9 +27,13 @@ button.onclick = function() {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         
-        // Salin tayangan video saat ini ke dalam konteks 2D canvas
+        // Salin tayangan video saat ini ke dalam konteks 2D canvas (secara terbalik/mirror)
         const context = canvas.getContext('2d');
+        context.save();
+        context.translate(canvas.width, 0);
+        context.scale(-1, 1);
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        context.restore();
         
         // Sembunyikan teks placeholder dan tampilkan elemen canvas
         if (placeholder) {
@@ -40,6 +44,17 @@ button.onclick = function() {
         console.warn('Video stream belum siap untuk dipotret.');
     }
 };
+
+if (resetButton) {
+    resetButton.onclick = function() {
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.classList.add('empty');
+        if (placeholder) {
+            placeholder.style.display = 'block';
+        }
+    };
+}
 
 /* ==========================================================================
    BLOK 3: KONSTRAIN KAMERA WEBCAM

@@ -35,6 +35,11 @@ function handleSuccess(stream) {
     
     window.stream = stream; // Menyimpan objek stream ke jendela global browser
     video.srcObject = stream;
+
+    const cameraStatus = document.querySelector('#cameraStatus');
+    if (cameraStatus) {
+        cameraStatus.innerText = 'Kamera berhasil diakses';
+    }
 }
 
 /* ==========================================================================

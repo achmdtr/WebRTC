@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <!-- BLOK 1: METADATA DOKUMEN & KONEKSI FONT -->
+    <!-- Fungsi: Menentukan standar encoding UTF-8, responsivitas layar HP/Desktop, serta mengimpor font 'Poppins' dari Google Fonts -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Interactive Photobooth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* BLOK 2: PALETTE WARNA CSS (:ROOT) */
+        /* Fungsi: Menyimpan variabel warna utama bertema 'Green Sands' (hijau tua emerald, ungu deep, aksen emas) yang konsisten dengan Percobaan 3 */
+        :root {
+            --green-dark: #0a3a2a;
+            --green-deep: #05261b;
+            --green-emerald: #0f523c;
+            --purple-primary: #5e2750;
+            --purple-accent: #8b3a77;
+            --purple-hover: #a0438a;
+            --gold-accent: #dfb15b;
+            --gold-light: #f3d48d;
+            --text-light: #f4f9f6;
+            --text-muted: #a3c4b8;
+            --shadow-color: rgba(0, 0, 0, 0.45);
+        }
+
+        /* BLOK 3: KELAS EFEK FILTER CSS */
+        /* Fungsi: Menyediakan kelas-kelas CSS efek visual (none, blur, grayscale, invert, sepia, hue-rotate, brightness) untuk video & canvas */
+        .none {
+            -webkit-filter: none;
+            filter: none;
+        }
+
+        .blur {
+            -webkit-filter: blur(4px);
+            filter: blur(4px);
+        }
+
+        .grayscale {
+            -webkit-filter: grayscale(1);
+            filter: grayscale(1);
+        }
+
+        .invert {
+            -webkit-filter: invert(1);
+            filter: invert(1);
+        }
+
+        .sepia {
+            -webkit-filter: sepia(1);
+            filter: sepia(1);
+        }
+
+        .hue-rotate {
+            -webkit-filter: hue-rotate(90deg);
+            filter: hue-rotate(90deg);
+        }
+
+        .brightness {
+            -webkit-filter: brightness(1.75);
+            filter: brightness(1.75);
+        }
+
+        video.flip {
+            transform: scaleX(1) !important;
+        }
+
+        canvas.flip {
+            transform: scaleX(-1);
+        }
+
+        /* BLOK 4: RESET CSS & LAYOUT BODY */
+        /* Fungsi: Reset margin/padding, font default, dan background gradasi menyilang */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-dark) 60%, var(--purple-primary) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px 15px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* BLOK 5: DESAIN CONTAINER UTAMA (GLASSMORPHISM) */
+        /* Fungsi: Menata container utama berdesain kaca buram transparan (backdrop-filter blur), border emas halus, dan bayangan ganda */
+        #container {
+            width: 100%;
+            max-width: 880px;
+            background: rgba(10, 58, 42, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(223, 177, 91, 0.28);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 45px var(--shadow-color), 0 0 25px rgba(139, 58, 119, 0.25);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* BLOK 6: STYLING HEADER & BADGE HIGHLIGHT */
+        .highlight {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--purple-primary), var(--purple-accent));
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 6px 18px;
+            border-radius: 50px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(94, 39, 80, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .highlight p {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 1.65rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            background: linear-gradient(to right, #ffffff, var(--gold-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+        }
+
+        /* BLOK 7: BAR KONTROL & FILTER SELEKSI */
+        .controls-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: rgba(5, 38, 27, 0.65);
+            border: 1px solid rgba(223, 177, 91, 0.22);
+            padding: 12px 22px;
+            border-radius: 50px;
+            margin-bottom: 22px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--gold-accent);
+        }
+
+        select#filter {
+            background-color: var(--green-deep);
+            color: var(--text-light);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 7px 16px;
+            border: 1px solid rgba(223, 177, 91, 0.35);
+            border-radius: 25px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select#filter:focus {
+            border-color: var(--purple-accent);
+            box-shadow: 0 0 10px rgba(139, 58, 119, 0.5);
+        }
+
+        /* BLOK 8: TOMBOL-TOMBOL AKSI */
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--purple-accent) 0%, var(--purple-primary) 100%);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 10px 26px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 14px rgba(94, 39, 80, 0.4);
+            text-decoration: none;
+        }
+
+        .btn-action:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--purple-hover) 0%, var(--purple-accent) 100%);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 7px 20px rgba(139, 58, 119, 0.6);
+        }
+
+        .btn-action:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-accent) 0%, #b8862d 100%);
+            color: #05261b;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(223, 177, 91, 0.35);
+        }
+
+        .btn-gold:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-accent) 100%);
+            box-shadow: 0 6px 18px rgba(223, 177, 91, 0.55);
+        }
+
+        /* BLOK 9: AREA KAMERA & OVERLAYS INTERAKTIF */
+        #cameraSection {
+            display: block;
+            position: relative;
+        }
+
+        .camera-card {
+            background: rgba(5, 38, 27, 0.65);
+            border: 1px solid rgba(223, 177, 91, 0.25);
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 22px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .camera-wrapper {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background: #000000;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        video#webcam {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            transition: filter 0.3s ease, -webkit-filter 0.3s ease;
+        }
+
+        /* Flash Overlay */
+        #flashOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+            transition: opacity 0.15s ease-out;
+        }
+
+        #flashOverlay.flashing {
+            opacity: 0.95;
+            transition: none;
+        }
+
+        /* Pose Roulette Overlay */
+        #poseOverlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(5, 38, 27, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid var(--gold-accent);
+            border-radius: 50px;
+            padding: 12px 28px;
+            color: #ffffff;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(223, 177, 91, 0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90%;
+        }
+
+        #poseOverlay.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .pose-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold-accent);
+            font-weight: 700;
+        }
+
+        .pose-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        /* Countdown Overlay */
+        #countdownOverlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            font-size: 7rem;
+            font-weight: 800;
+            color: var(--gold-accent);
+            text-shadow: 0 0 25px rgba(223, 177, 91, 0.8), 0 5px 20px rgba(0, 0, 0, 0.8);
+            z-index: 40;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            line-height: 1;
+        }
+
+        #countdownOverlay.animate {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+
+        /* Status Indicator */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #28a745;
+            box-shadow: 0 0 8px #28a745;
+        }
+
+        .status-dot.busy {
+            background-color: var(--gold-accent);
+            box-shadow: 0 0 8px var(--gold-accent);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.85); opacity: 0.7; }
+            100% { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* BLOK 10: HASIL SESI PHOTOBOOTH (AESTHETIC PHOTO STRIP) */
+        #resultSection {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Desain Strip Foto yang Menarik */
+        .photostrip-container {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0 25px 0;
+        }
+
+        .photostrip-card {
+            width: 100%;
+            max-width: 440px;
+            background: linear-gradient(180deg, #052319 0%, #083325 50%, #052319 100%);
+            border: 3px solid var(--gold-accent);
+            border-radius: 20px;
+            padding: 24px 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(223, 177, 91, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ornamen Aksen Strip */
+        .photostrip-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--purple-accent), var(--gold-accent), var(--purple-accent));
+        }
+
+        .strip-header {
+            margin-bottom: 18px;
+            border-bottom: 1px dashed rgba(223, 177, 91, 0.4);
+            padding-bottom: 12px;
+        }
+
+        .strip-header .strip-brand {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold-accent);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .strip-header .strip-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .strip-photos {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .strip-frame {
+            background: #000000;
+            border: 2px solid rgba(223, 177, 91, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+            aspect-ratio: 4 / 3;
+        }
+
+        .strip-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .strip-frame .frame-tag {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(5, 38, 27, 0.85);
+            border: 1px solid var(--gold-accent);
+            color: var(--gold-accent);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            letter-spacing: 1px;
+        }
+
+        .strip-footer {
+            border-top: 1px dashed rgba(223, 177, 91, 0.4);
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .strip-footer .strip-date {
+            color: var(--gold-accent);
+            font-weight: 600;
+        }
+
+        /* Result Actions Bar */
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        /* BLOK 11: PESAN ERROR */
+        #errorMsg {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #errorMsg p {
+            background-color: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid #dc3545;
+            color: #ff8b94;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        /* Elemen Canvas tersembunyi untuk proses capture */
+        #hiddenCanvas {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BLOK 12: STRUKTUR DOKUMEN HTML UTAMA -->
+    <div id="container">
+        <div class="highlight">
+            <p>WebRTC • Interactive Photobooth</p>
+        </div>
+        <h1>Photobooth Roulette Studio ✨</h1>
+        <p class="subtitle">Ambil 2 foto beruntun dengan pose random seru & unduh hasil photostrip kerenmu!</p>
+
+        <!-- SECTION 1: AREA SHOOTING KAMERA -->
+        <div id="cameraSection">
+            <!-- Bar Pilihan Filter & Status -->
+            <div class="controls-bar">
+                <div class="control-group">
+                    <label for="filter">Pilih Filter:</label>
+                    <select id="filter">
+                        <option value="none">None</option>
+                        <option value="blur">Blur</option>
+                        <option value="grayscale">Grayscale</option>
+                        <option value="invert">Invert</option>
+                        <option value="sepia">Sepia</option>
+                        <option value="hue-rotate">Hue Rotate</option>
+                        <option value="brightness">Brightness</option>
+                        <option value="flip">Flip Horizontal</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Kamera & Overlays -->
+            <div class="camera-card">
+                <div class="camera-wrapper">
+                    <video id="webcam" autoplay playsinline></video>
+
+                    <!-- Pose Roulette Overlay -->
+                    <div id="poseOverlay">
+                        <span class="pose-header" id="poseRound">Photo 1 of 2</span>
+                        <span class="pose-text" id="poseText">Peace Sign! ✌️</span>
+                    </div>
+
+                    <!-- Countdown Overlay -->
+                    <div id="countdownOverlay">3</div>
+
+                    <!-- Flash Effect Overlay -->
+                    <div id="flashOverlay"></div>
+                </div>
+            </div>
+
+            <!-- Status Indicator & Tombol Take Photo -->
+            <div>
+                <div class="status-pill">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusLabel">Ready to shoot</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <button id="takePhotoBtn" class="btn-action btn-gold">
+                    📸 Take Photo (2 Poses)
+                </button>
+            </div>
+        </div>
+
+        <!-- SECTION 2: AREA HASIL FOTO (PHOTO STRIP RESULT) -->
+        <div id="resultSection">
+            <div class="photostrip-container">
+                <div class="photostrip-card" id="photostripCard">
+                    <div class="strip-header">
+                        <div class="strip-brand">✦ PHOTOBOOTH MEMORIES ✦</div>
+                        <div class="strip-subtitle">WebRTC Interactive Session</div>
+                    </div>
+
+                    <div class="strip-photos">
+                        <div class="strip-frame">
+                            <img id="resultImg1" src="" alt="Pose 1">
+                            <div class="frame-tag" id="tagPhoto1">POSE #1</div>
+                        </div>
+                        <div class="strip-frame">
+                            <img id="resultImg2" src="" alt="Pose 2">
+                            <div class="frame-tag" id="tagPhoto2">POSE #2</div>
+                        </div>
+                    </div>
+
+                    <div class="strip-footer">
+                        <span>✨ Sweet Memories</span>
+                        <span class="strip-date" id="stripDate">2026</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons for Result -->
+            <div class="result-actions">
+                <button id="downloadStripBtn" class="btn-action btn-gold">
+                    🖼️ Download Photo Strip
+                </button>
+                <button id="downloadPhotosBtn" class="btn-action">
+                    📥 Download Individual Photos
+                </button>
+                <button id="retakeBtn" class="btn-action">
+                    🔄 Retake
+                </button>
+            </div>
+        </div>
+
+        <!-- Pesan Error -->
+        <div id="errorMsg"></div>
+    </div>
+
+    <!-- Hidden Canvas untuk pemrosesan snapshot & render strip -->
+    <canvas id="hiddenCanvas"></canvas>
+    <canvas id="stripCanvas" style="display: none;"></canvas>
+
+    <!-- BLOK 13: PEMANGGILAN SCRIPT JAVASCRIPT -->
+    <script src="compile.js"></script>
+</body>
+
+</html>

@@ -21,19 +21,27 @@ canvas.height = 480;
    Fungsi: Ketika tombol 'Take Snapshot' diklik, fungsi ini menyalin tayangan
    frame video aktif beserta kelas filter CSS yang dipilih ke elemen canvas 2D.
    ========================================================================== */
-snapshotButton.onclick = function() {
+snapshotButton.onclick = function () {
     if (video.videoWidth && video.videoHeight) {
         // Sesuaikan dimensi canvas mengikuti resolusi tayangan video asli
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        
+
         // Terapkan nama kelas filter CSS yang sedang aktif ke elemen canvas
         canvas.className = filterSelect.value;
-        
+
         // Gambar frame video saat ini ke dalam canvas 2D
         const context = canvas.getContext('2d');
+        context.save();
+        // Karena video live ter-mirror secara default (scaleX(-1)), jika filter BUKAN flip, canvas di-mirror juga.
+        // Jika filter ADALAH flip, video berubah jadi scaleX(1) (normal), sehingga canvas digambar tanpa flip tambahan.
+        if (filterSelect.value !== 'flip') {
+            context.translate(canvas.width, 0);
+            context.scale(-1, 1);
+        }
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
+        context.restore();
+
         // Sembunyikan teks placeholder dan tampilkan elemen canvas
         if (placeholder) {
             placeholder.style.display = 'none';
@@ -49,7 +57,7 @@ snapshotButton.onclick = function() {
    Fungsi: Mengubah nilai class pada elemen <video> secara otomatis saat pengguna
    memilih opsi filter baru dari menu dropdown (<select>).
    ========================================================================== */
-filterSelect.onchange = function() {
+filterSelect.onchange = function () {
     video.className = filterSelect.value;
 };
 
