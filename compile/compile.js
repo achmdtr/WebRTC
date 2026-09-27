@@ -194,8 +194,9 @@ function runCountdown() {
 }
 
 /* ==========================================================================
-   BLOK 6: FLASH EFFECT & SNAPSHOT CAPTURE KE CANVAS
-   Fungsi: Menjalankan efek lampu flash putih dan menyalin frame video ke canvas.
+   BLOK 6: FLASH EFFECT & SNAPSHOT CAPTURE KE CANVAS (RESOLUSI 100% ASLI)
+   Fungsi: Menjalankan efek lampu flash putih dan menyalin frame video ke canvas
+   dengan ukuran canvas yang sama persis dengan resolusi video asli tanpa crop.
    ========================================================================== */
 function triggerFlash() {
     return new Promise((resolve) => {
@@ -214,6 +215,7 @@ function captureVideoFrame() {
         throw new Error('Video stream belum siap.');
     }
 
+    // Samakan ukuran canvas capture 100% dengan resolusi video native
     hiddenCanvas.width = video.videoWidth;
     hiddenCanvas.height = video.videoHeight;
     const ctx = hiddenCanvas.getContext('2d');
@@ -221,7 +223,7 @@ function captureVideoFrame() {
     const activeFilter = filterSelect.value;
     ctx.save();
 
-    // Terapkan filter CSS ke canvas context jika ada
+    // Terapkan filter CSS ke canvas context
     const canvasFilter = getCanvasFilterStyle(activeFilter);
     if (ctx.filter !== undefined) {
         ctx.filter = canvasFilter;
@@ -283,7 +285,7 @@ async function startPhotoboothSession() {
 }
 
 /* ==========================================================================
-   BLOK 8: HASIL SESI & RENDER PHOTO STRIP
+   BLOK 8: HASIL SESI & TAMPILAN SCREEN
    Fungsi: Menampilkan gambar pada strip frame dan menyusun tampilan hasil.
    ========================================================================== */
 function showResultScreen() {
@@ -319,7 +321,7 @@ function updateStatus(text, isBusy) {
 
 /* ==========================================================================
    BLOK 9: DOWNLOAD HANDLER (STRIP & INDIVIDUAL PHOTOS)
-   Fungsi: Mengunduh foto satuan atau merender photostrip estetis ke canvas.
+   Fungsi: Mengunduh foto satuan atau merender photostrip dengan aspek rasio presisi.
    ========================================================================== */
 // Download Foto Satuan (photo-1 & photo-2)
 function downloadIndividualPhotos() {
@@ -344,7 +346,7 @@ function downloadIndividualPhotos() {
     }, 400);
 }
 
-// Download Photostrip Estetis (Render ke Canvas 2D)
+// Download Photostrip Estetis (Render ke Canvas 2D secara Proporsional Dinamis)
 function downloadPhotoStrip() {
     if (!photo1Data || !photo2Data) return;
 
@@ -361,12 +363,18 @@ function downloadPhotoStrip() {
 }
 
 function renderAndSaveStrip(img1, img2) {
-    const stripWidth = 800;
+    const stripWidth = 840;
     const padding = 40;
     const photoWidth = stripWidth - (padding * 2);
-    const photoHeight = Math.round(photoWidth * (3 / 4)); // Rasio 4:3
-    const headerHeight = 120;
-    const footerHeight = 100;
+
+    // Hitung tinggi foto secara dinamis berdasarkan aspek rasio asli gambar (mencegah stretching & cropping)
+    const nativeAspectRatio = (img1.naturalHeight && img1.naturalWidth)
+        ? (img1.naturalHeight / img1.naturalWidth)
+        : (9 / 16);
+    
+    const photoHeight = Math.round(photoWidth * nativeAspectRatio);
+    const headerHeight = 130;
+    const footerHeight = 110;
     const photoGap = 30;
 
     const stripHeight = headerHeight + (photoHeight * 2) + photoGap + footerHeight;
@@ -394,29 +402,29 @@ function renderAndSaveStrip(img1, img2) {
     topBarGradient.addColorStop(0.5, '#dfb15b');
     topBarGradient.addColorStop(1, '#8b3a77');
     ctx.fillStyle = topBarGradient;
-    ctx.fillRect(0, 0, stripWidth, 12);
+    ctx.fillRect(0, 0, stripWidth, 14);
 
     // 4. Header Teks
     ctx.textAlign = 'center';
     ctx.fillStyle = '#dfb15b';
-    ctx.font = 'bold 30px "Poppins", sans-serif';
-    ctx.fillText('✦ PHOTOBOOTH MEMORIES ✦', stripWidth / 2, 65);
+    ctx.font = 'bold 32px "Poppins", sans-serif';
+    ctx.fillText('✦ PHOTOBOOTH MEMORIES ✦', stripWidth / 2, 70);
 
     ctx.fillStyle = '#a3c4b8';
-    ctx.font = '16px "Poppins", sans-serif';
-    ctx.fillText('WebRTC Interactive Session', stripWidth / 2, 95);
+    ctx.font = '17px "Poppins", sans-serif';
+    ctx.fillText('WebRTC Interactive Session', stripWidth / 2, 102);
 
     // Garis Pemisah Putus-putus Header
     ctx.strokeStyle = 'rgba(223, 177, 91, 0.4)';
     ctx.lineWidth = 2;
     ctx.setLineDash([8, 8]);
     ctx.beginPath();
-    ctx.moveTo(padding, 115);
-    ctx.lineTo(stripWidth - padding, 115);
+    ctx.moveTo(padding, 122);
+    ctx.lineTo(stripWidth - padding, 122);
     ctx.stroke();
     ctx.setLineDash([]); // Reset line dash
 
-    // 5. Gambar Foto 1
+    // 5. Gambar Foto 1 (Presisi tanpa distorsi)
     const yPhoto1 = headerHeight + 15;
     ctx.fillStyle = '#000000';
     ctx.fillRect(padding, yPhoto1, photoWidth, photoHeight);
@@ -426,9 +434,9 @@ function renderAndSaveStrip(img1, img2) {
     ctx.strokeRect(padding, yPhoto1, photoWidth, photoHeight);
 
     // Tag Foto 1
-    drawFrameTag(ctx, pose1Text, padding + photoWidth - 15, yPhoto1 + photoHeight - 15);
+    drawFrameTag(ctx, pose1Text, padding + photoWidth - 18, yPhoto1 + photoHeight - 18);
 
-    // 6. Gambar Foto 2
+    // 6. Gambar Foto 2 (Presisi tanpa distorsi)
     const yPhoto2 = yPhoto1 + photoHeight + photoGap;
     ctx.fillStyle = '#000000';
     ctx.fillRect(padding, yPhoto2, photoWidth, photoHeight);
@@ -438,7 +446,7 @@ function renderAndSaveStrip(img1, img2) {
     ctx.strokeRect(padding, yPhoto2, photoWidth, photoHeight);
 
     // Tag Foto 2
-    drawFrameTag(ctx, pose2Text, padding + photoWidth - 15, yPhoto2 + photoHeight - 15);
+    drawFrameTag(ctx, pose2Text, padding + photoWidth - 18, yPhoto2 + photoHeight - 18);
 
     // 7. Footer
     const yFooter = yPhoto2 + photoHeight + 35;
@@ -456,13 +464,13 @@ function renderAndSaveStrip(img1, img2) {
 
     ctx.textAlign = 'left';
     ctx.fillStyle = '#a3c4b8';
-    ctx.font = '16px "Poppins", sans-serif';
-    ctx.fillText('✨ Sweet Memories', padding + 10, yFooter + 40);
+    ctx.font = '17px "Poppins", sans-serif';
+    ctx.fillText('Sweet Memories', padding + 10, yFooter + 42);
 
     ctx.textAlign = 'right';
     ctx.fillStyle = '#dfb15b';
-    ctx.font = 'bold 16px "Poppins", sans-serif';
-    ctx.fillText(dateText, stripWidth - padding - 10, yFooter + 40);
+    ctx.font = 'bold 17px "Poppins", sans-serif';
+    ctx.fillText(dateText, stripWidth - padding - 10, yFooter + 42);
 
     // 8. Download Strip Canvas
     const stripDataURL = stripCanvas.toDataURL('image/png');
@@ -476,16 +484,16 @@ function renderAndSaveStrip(img1, img2) {
 
 function drawFrameTag(ctx, text, rightX, bottomY) {
     ctx.save();
-    ctx.font = 'bold 14px "Poppins", sans-serif';
+    ctx.font = 'bold 15px "Poppins", sans-serif';
     const tagText = (text || 'POSE').toUpperCase();
     const textWidth = ctx.measureText(tagText).width;
-    const tagPadding = 10;
-    const tagH = 28;
+    const tagPadding = 12;
+    const tagH = 32;
     const tagW = textWidth + (tagPadding * 2);
     const tagX = rightX - tagW;
     const tagY = bottomY - tagH;
 
-    ctx.fillStyle = 'rgba(5, 38, 27, 0.88)';
+    ctx.fillStyle = 'rgba(5, 38, 27, 0.90)';
     ctx.fillRect(tagX, tagY, tagW, tagH);
     ctx.strokeStyle = '#dfb15b';
     ctx.lineWidth = 2;
@@ -493,7 +501,7 @@ function drawFrameTag(ctx, text, rightX, bottomY) {
 
     ctx.fillStyle = '#dfb15b';
     ctx.textAlign = 'center';
-    ctx.fillText(tagText, tagX + (tagW / 2), tagY + 19);
+    ctx.fillText(tagText, tagX + (tagW / 2), tagY + 22);
     ctx.restore();
 }
 

@@ -89,7 +89,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 25px 15px;
+            padding: 30px 15px;
             position: relative;
             overflow-x: hidden;
         }
@@ -98,13 +98,13 @@
         /* Fungsi: Menata container utama berdesain kaca buram transparan (backdrop-filter blur), border emas halus, dan bayangan ganda */
         #container {
             width: 100%;
-            max-width: 880px;
+            max-width: 920px;
             background: rgba(10, 58, 42, 0.78);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             border: 1px solid rgba(223, 177, 91, 0.28);
             border-radius: 24px;
-            padding: 30px;
+            padding: 35px 30px;
             box-shadow: 0 20px 45px var(--shadow-color), 0 0 25px rgba(139, 58, 119, 0.25);
             text-align: center;
             position: relative;
@@ -132,7 +132,7 @@
         }
 
         h1 {
-            font-size: 1.65rem;
+            font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 8px;
             color: var(--text-light);
@@ -142,9 +142,9 @@
         }
 
         .subtitle {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--text-muted);
-            margin-bottom: 22px;
+            margin-bottom: 25px;
         }
 
         /* BLOK 7: BAR KONTROL & FILTER SELEKSI */
@@ -169,7 +169,7 @@
 
         .control-group label {
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--gold-accent);
         }
 
@@ -177,9 +177,9 @@
             background-color: var(--green-deep);
             color: var(--text-light);
             font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 500;
-            padding: 7px 16px;
+            padding: 8px 18px;
             border: 1px solid rgba(223, 177, 91, 0.35);
             border-radius: 25px;
             outline: none;
@@ -192,34 +192,40 @@
             box-shadow: 0 0 10px rgba(139, 58, 119, 0.5);
         }
 
-        /* BLOK 8: TOMBOL-TOMBOL AKSI */
+        /* BLOK 8: TOMBOL-TOMBOL AKSI (UKURAN DIPERBESAR & BEBAS IKON) */
         .btn-action {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
             background: linear-gradient(135deg, var(--purple-accent) 0%, var(--purple-primary) 100%);
             color: #ffffff;
             font-family: 'Poppins', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 600;
-            padding: 10px 26px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 15px 36px;
+            min-width: 220px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 14px rgba(94, 39, 80, 0.4);
+            box-shadow: 0 6px 18px rgba(94, 39, 80, 0.45);
             text-decoration: none;
+            user-select: none;
         }
 
         .btn-action:hover:not(:disabled) {
             background: linear-gradient(135deg, var(--purple-hover) 0%, var(--purple-accent) 100%);
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 7px 20px rgba(139, 58, 119, 0.6);
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 10px 24px rgba(139, 58, 119, 0.65);
+        }
+
+        .btn-action:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
         }
 
         .btn-action:disabled {
-            opacity: 0.5;
+            opacity: 0.45;
             cursor: not-allowed;
             transform: none !important;
             box-shadow: none !important;
@@ -229,12 +235,16 @@
             background: linear-gradient(135deg, var(--gold-accent) 0%, #b8862d 100%);
             color: #05261b;
             font-weight: 700;
-            box-shadow: 0 4px 14px rgba(223, 177, 91, 0.35);
+            font-size: 1.12rem;
+            padding: 16px 42px;
+            min-width: 250px;
+            box-shadow: 0 6px 20px rgba(223, 177, 91, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .btn-gold:hover:not(:disabled) {
             background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-accent) 100%);
-            box-shadow: 0 6px 18px rgba(223, 177, 91, 0.55);
+            box-shadow: 0 10px 26px rgba(223, 177, 91, 0.6);
         }
 
         /* BLOK 9: AREA KAMERA & OVERLAYS INTERAKTIF */
@@ -255,7 +265,7 @@
         .camera-wrapper {
             position: relative;
             width: 100%;
-            height: 380px;
+            height: 400px;
             background: #000000;
             border-radius: 12px;
             overflow: hidden;
@@ -303,7 +313,7 @@
             -webkit-backdrop-filter: blur(12px);
             border: 2px solid var(--gold-accent);
             border-radius: 50px;
-            padding: 12px 28px;
+            padding: 12px 30px;
             color: #ffffff;
             z-index: 30;
             display: flex;
@@ -331,7 +341,7 @@
         }
 
         .pose-text {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #ffffff;
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -344,7 +354,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.5);
-            font-size: 7rem;
+            font-size: 7.5rem;
             font-weight: 800;
             color: var(--gold-accent);
             text-shadow: 0 0 25px rgba(223, 177, 91, 0.8), 0 5px 20px rgba(0, 0, 0, 0.8);
@@ -367,11 +377,11 @@
             gap: 8px;
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 6px 18px;
+            padding: 8px 22px;
             border-radius: 30px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--text-light);
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         .status-dot {
@@ -393,7 +403,7 @@
             100% { transform: scale(1.2); opacity: 1; }
         }
 
-        /* BLOK 10: HASIL SESI PHOTOBOOTH (AESTHETIC PHOTO STRIP) */
+        /* BLOK 10: HASIL SESI PHOTOBOOTH (AESTHETIC PHOTO STRIP BEBAS CROP/STRETCH) */
         #resultSection {
             display: none;
             animation: fadeIn 0.5s ease;
@@ -404,7 +414,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Desain Strip Foto yang Menarik */
+        /* Desain Strip Foto yang Menarik & Presisi */
         .photostrip-container {
             display: flex;
             justify-content: center;
@@ -413,7 +423,7 @@
 
         .photostrip-card {
             width: 100%;
-            max-width: 440px;
+            max-width: 460px;
             background: linear-gradient(180deg, #052319 0%, #083325 50%, #052319 100%);
             border: 3px solid var(--gold-accent);
             border-radius: 20px;
@@ -441,7 +451,7 @@
         }
 
         .strip-header .strip-brand {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 700;
             color: var(--gold-accent);
             letter-spacing: 3px;
@@ -449,57 +459,60 @@
         }
 
         .strip-header .strip-subtitle {
-            font-size: 0.75rem;
+            font-size: 0.78rem;
             color: var(--text-muted);
             letter-spacing: 1px;
-            margin-top: 2px;
+            margin-top: 3px;
         }
 
         .strip-photos {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
             margin-bottom: 18px;
         }
 
+        /* Frame foto yang mengikuti aspek rasio asli tanpa crop / stretch */
         .strip-frame {
             background: #000000;
-            border: 2px solid rgba(223, 177, 91, 0.4);
+            border: 2px solid rgba(223, 177, 91, 0.45);
             border-radius: 12px;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
-            aspect-ratio: 4 / 3;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .strip-frame img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
             display: block;
         }
 
         .strip-frame .frame-tag {
             position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: rgba(5, 38, 27, 0.85);
+            bottom: 10px;
+            right: 10px;
+            background: rgba(5, 38, 27, 0.88);
             border: 1px solid var(--gold-accent);
             color: var(--gold-accent);
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 12px;
             letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
 
         .strip-footer {
             border-top: 1px dashed rgba(223, 177, 91, 0.4);
-            padding-top: 12px;
+            padding-top: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
         }
 
@@ -512,9 +525,10 @@
         .result-actions {
             display: flex;
             justify-content: center;
+            align-items: center;
             flex-wrap: wrap;
-            gap: 14px;
-            margin-top: 20px;
+            gap: 16px;
+            margin-top: 25px;
         }
 
         /* BLOK 11: PESAN ERROR */
@@ -587,7 +601,7 @@
                 </div>
             </div>
 
-            <!-- Status Indicator & Tombol Take Photo -->
+            <!-- Status Indicator -->
             <div>
                 <div class="status-pill">
                     <div class="status-dot" id="statusDot"></div>
@@ -595,9 +609,10 @@
                 </div>
             </div>
 
+            <!-- Tombol Take Photo (Bebas Ikon, Ukuran Besar) -->
             <div style="margin-top: 10px;">
                 <button id="takePhotoBtn" class="btn-action btn-gold">
-                    📸 Take Photo (2 Poses)
+                    Take Photo (2 Poses)
                 </button>
             </div>
         </div>
@@ -623,22 +638,22 @@
                     </div>
 
                     <div class="strip-footer">
-                        <span>✨ Sweet Memories</span>
+                        <span>Sweet Memories</span>
                         <span class="strip-date" id="stripDate">2026</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Action Buttons for Result -->
+            <!-- Action Buttons for Result (Bebas Ikon, Ukuran Besar) -->
             <div class="result-actions">
                 <button id="downloadStripBtn" class="btn-action btn-gold">
-                    🖼️ Download Photo Strip
+                    Download Photo Strip
                 </button>
                 <button id="downloadPhotosBtn" class="btn-action">
-                    📥 Download Individual Photos
+                    Download Individual Photos
                 </button>
                 <button id="retakeBtn" class="btn-action">
-                    🔄 Retake
+                    Retake
                 </button>
             </div>
         </div>
